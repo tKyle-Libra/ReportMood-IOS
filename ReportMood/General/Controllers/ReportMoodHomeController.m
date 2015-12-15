@@ -7,11 +7,12 @@
 //
 
 #import "ReportMoodHomeController.h"
+#import <Photos/Photos.h>
 #import <Masonry/Masonry.h>
 #import <AGImagePickerController/AGImagePickerController.h>
 #import "UtilsMacro.h"
 
-@interface ReportMoodHomeController() <UIGestureRecognizerDelegate,UITextViewDelegate>
+@interface ReportMoodHomeController() <UIGestureRecognizerDelegate,UITextViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 
 @property (strong,nonatomic) UIView *reportView;
 
@@ -25,6 +26,7 @@
 
 @property (strong,nonatomic) NSMutableArray *imgChoseArray;
 
+@property (strong,nonatomic) UICollectionView *thumbImageView;
 @end
 
 @implementation ReportMoodHomeController
@@ -42,15 +44,8 @@
 
 -(void) InitControl
 {
-    /*
-        心情回复 RootView
-     */
+
     _reportView = [[UIView alloc] init];
-    [_reportView mas_makeConstraints:^(MASConstraintMaker *make)
-    {
-        make.width.mas_equalTo(self.tableView.mas_width);
-        make.top.left.right.bottom.mas_equalTo(self.tableView.tableHeaderView).offset(0);
-    }];
     
     _reportMoodTextView = [[UITextView alloc] init];
     _reportMoodTextView.returnKeyType = UIReturnKeyDone;
@@ -59,27 +54,38 @@
     [_reportView addSubview:_reportMoodTextView];
     
     _placeHolderLabel = [[UILabel alloc] init];
-    _placeHolderLabel.text = PLACE_HOLDER;
+    _placeHolderLabel.text = PlaceHolder;
     _placeHolderLabel.font = [UIFont systemFontOfSize:15];
     _placeHolderLabel.textColor = [UIColor grayColor];
     [_reportView addSubview:_placeHolderLabel];
     
+    _thumbImageView = [[UICollectionView alloc] init];
+    _thumbImageView.delegate = self;
+    _thumbImageView.dataSource = self;
+#if 0
     NSInteger count = [_imgChoseArray count];
-    if(count == MIN_IMG_COUNT)
+    if(count < MaxImageCount)
     {
         _addPictureButton = [[UIButton alloc] init];
         [_addPictureButton addTarget:self action:@selector(AddPictures:) forControlEvents:UIControlEventTouchUpInside];
         [_reportView addSubview:_addPictureButton];
     }
-    else if(count > MIN_IMG_COUNT)
+    for(int i = 0; i < count; i++)
     {
-        
+        UIImageView *thumbImageView = [[UIImageView alloc] init];
+        thumbImageView.image = [UIImage imageWithCGImage:(__bridge CGImageRef _Nonnull)((PHAsset *)[_imgChoseArray objectAtIndex:i])];
+        [_reportView addSubview:thumbImageView];
     }
+#endif
     
+#if DEBUG
+    [self WireFrameModel];
+#endif
+    [self InitConstraint];
+    self.tableView.tableHeaderView = _reportView;
 }
 
 #if DEBUG
-
 -(void) WireFrameModel
 {
     _reportView.layer.borderColor = [UIColor redColor].CGColor;
@@ -97,7 +103,27 @@
 
 #endif
 
+
 -(void) InitConstraint
+{
+    [_reportMoodTextView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.mas_equalTo(_reportView).offset(Padding);
+        make.right.mas_equalTo(_reportView.mas_right).offset(-Padding);
+        make.height.mas_equalTo(MoodTextViewHeigh);
+    }];
+    [_placeHolderLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        
+    }];
+    //添加或更新 addPictureBtn 和 thumbImageViewArray 约束
+    NSInteger count = [_imgChoseArray count];
+    if (count < MaxImageCount)
+    {
+        
+    }
+    [self AddThumbImageViewConstraint];
+}
+
+-(void) AddThumbImageViewConstraint
 {
     
 }
@@ -116,9 +142,60 @@
     [self.reportMoodTextView resignFirstResponder];
 }
 
+-(void)tapImageView:(UITapGestureRecognizer *)tap
+{
+#if 0
+    self.navigationController.navigationBarHidden = YES;
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    ShowImageViewController *vc = [storyboard instantiateViewControllerWithIdentifier:@"ShowImage"];
+    vc.clickTag = tap.view.tag;
+    vc.imageViews = self.imagePickerArray;
+    [self.navigationController pushViewController:vc animated:YES];
+#endif
+}
+
 -(void) AddPictures:(id)sender
 {
 
 }
+
+#pragma mark UICollectionView DataSource or Delegate 
+
+-(NSInteger) collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    NSInteger count = [_imgChoseArray count];
+    if (count == MinImageCount)
+    {
+        return DefaultNumber;
+    }
+    return count + DefaultNumber;
+}
+
+-(NSInteger) numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
+    return DefaultNumber;
+}
+
+-(UICollectionViewCell *) collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return nil;
+}
+
+-(CGSize) collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return CGSizeMake(0,0);
+}
+
+-(UIEdgeInsets) collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+{
+    return UIEdgeInsetsMake(0, 0, 0, 0);
+}
+
+-(void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    
+}
+
+
 
 @end

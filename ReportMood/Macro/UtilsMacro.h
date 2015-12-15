@@ -9,9 +9,12 @@
 #ifndef UtilsMacro_h
 #define UtilsMacro_h
 
-#define PADDING 10 
+#define Padding 10
 
-#define PLACE_HOLDER @"这一刻的想法"
-#define MIN_IMG_COUNT 0
+#define PlaceHolder @"这一刻的想法"
+#define MaxImageCount 9
+#define MinImageCount 0
+#define DefaultNumber 1
+#define MoodTextViewHeigh 100
 
 #endif /* UtilsMacro_h */
