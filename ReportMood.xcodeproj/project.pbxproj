@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0638C62FD71A4C04D224618A /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E7C0A9C557FD37E94E6BB16 /* libPods.a */; };
+		274217301C210FCD00EAEB96 /* ReportMoodThumbImageSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2742172F1C210FCD00EAEB96 /* ReportMoodThumbImageSection.m */; };
 		27C968EC1C1FF5AC000630C2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 27C968EB1C1FF5AC000630C2 /* main.m */; };
 		27C968F51C1FF5AC000630C2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27C968F31C1FF5AC000630C2 /* Main.storyboard */; };
 		27C968F81C1FF5AC000630C2 /* ReportMood.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 27C968F61C1FF5AC000630C2 /* ReportMood.xcdatamodeld */; };
@@ -20,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		19A654BE3978D13E27DF4995 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		2742172E1C210FCD00EAEB96 /* ReportMoodThumbImageSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReportMoodThumbImageSection.h; path = General/Section/ReportMoodThumbImageSection.h; sourceTree = "<group>"; };
+		2742172F1C210FCD00EAEB96 /* ReportMoodThumbImageSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReportMoodThumbImageSection.m; path = General/Section/ReportMoodThumbImageSection.m; sourceTree = "<group>"; };
 		27C968E71C1FF5AB000630C2 /* ReportMood.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReportMood.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		27C968EB1C1FF5AC000630C2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		27C968F41C1FF5AC000630C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -79,7 +82,6 @@
 				27C9691A1C1FFD9A000630C2 /* Macro */,
 				27C9691B1C1FFDA1000630C2 /* General */,
 				27C9691C1C1FFDAD000630C2 /* Helpers */,
-				27C9691D1C1FFDCA000630C2 /* Sections */,
 				27C968F31C1FF5AC000630C2 /* Main.storyboard */,
 				27C968F91C1FF5AC000630C2 /* Assets.xcassets */,
 				27C968FB1C1FF5AC000630C2 /* LaunchScreen.storyboard */,
@@ -129,7 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				27C9692A1C1FFEB6000630C2 /* Controllers */,
-				27C969291C1FFE9C000630C2 /* Views */,
+				27C969291C1FFE9C000630C2 /* Sections */,
 			);
 			name = General;
 			sourceTree = "<group>";
@@ -141,18 +143,13 @@
 			name = Helpers;
 			sourceTree = "<group>";
 		};
-		27C9691D1C1FFDCA000630C2 /* Sections */ = {
+		27C969291C1FFE9C000630C2 /* Sections */ = {
 			isa = PBXGroup;
 			children = (
+				2742172E1C210FCD00EAEB96 /* ReportMoodThumbImageSection.h */,
+				2742172F1C210FCD00EAEB96 /* ReportMoodThumbImageSection.m */,
 			);
 			name = Sections;
-			sourceTree = "<group>";
-		};
-		27C969291C1FFE9C000630C2 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Views;
 			sourceTree = "<group>";
 		};
 		27C9692A1C1FFEB6000630C2 /* Controllers */ = {
@@ -305,6 +302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				27C968F81C1FF5AC000630C2 /* ReportMood.xcdatamodeld in Sources */,
+				274217301C210FCD00EAEB96 /* ReportMoodThumbImageSection.m in Sources */,
 				27C9692E1C1FFFC4000630C2 /* ReportMoodHomeController.m in Sources */,
 				27C968EC1C1FF5AC000630C2 /* main.m in Sources */,
 				27C969241C1FFE70000630C2 /* AppDelegate.m in Sources */,

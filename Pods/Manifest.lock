@@ -14,19 +14,19 @@ PODS:
   - AFNetworking/Serialization (3.0.2)
   - AFNetworking/UIKit (3.0.2):
     - AFNetworking/NSURLSession
-  - AGImagePickerController (2.0.1)
+  - JFImagePicker (1.0.0)
   - Masonry (0.6.3)
   - UITableView+FDTemplateLayoutCell (1.4.beta)
 
 DEPENDENCIES:
   - AFNetworking (~> 3.0.0-beta.2)
-  - AGImagePickerController (~> 2.0.1)
+  - JFImagePicker
   - Masonry
   - UITableView+FDTemplateLayoutCell (~> 1.4.beta)
 
 SPEC CHECKSUMS:
   AFNetworking: 2f30b7db399a405b12b24e049c654f108fc8c54d
-  AGImagePickerController: 429508e21beb42ade97acf9181d619d806a701ce
+  JFImagePicker: 2914c69dac80767a98664e768ac50118664e9f04
   Masonry: ff105a956abcd19a618b2028b121cb638d7a8e2f
   UITableView+FDTemplateLayoutCell: 9d20bf0518f3c01e42ae614243b97f1161063d27
 

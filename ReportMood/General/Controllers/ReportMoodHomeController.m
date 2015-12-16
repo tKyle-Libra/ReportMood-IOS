@@ -9,16 +9,17 @@
 #import "ReportMoodHomeController.h"
 #import <Photos/Photos.h>
 #import <Masonry/Masonry.h>
-#import <AGImagePickerController/AGImagePickerController.h>
+#import <JFImagePicker/JFImagePickerController.h>
 #import "UtilsMacro.h"
+#import "ReportMoodThumbImageSection.h"
 
-@interface ReportMoodHomeController() <UIGestureRecognizerDelegate,UITextViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
+@interface ReportMoodHomeController() <UIGestureRecognizerDelegate,UITextViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,JFImagePickerDelegate>
 
 @property (strong,nonatomic) UIView *reportView;
 
 @property (strong,nonatomic) UITextView *reportMoodTextView;
 
-@property (strong,nonatomic) AGImagePickerController *imgPickerController;
+@property (strong,nonatomic) JFImagePickerController *imgPickerController;
 
 @property (strong,nonatomic) UILabel *placeHolderLabel;
 
@@ -58,31 +59,20 @@
     _placeHolderLabel.font = [UIFont systemFontOfSize:15];
     _placeHolderLabel.textColor = [UIColor grayColor];
     [_reportView addSubview:_placeHolderLabel];
-    
-    _thumbImageView = [[UICollectionView alloc] init];
+
+    UICollectionViewFlowLayout *flowLayout= [[UICollectionViewFlowLayout alloc]init];
+    _thumbImageView = [[UICollectionView alloc] initWithFrame:CGRectMake(20, 20, 250, 350) collectionViewLayout:flowLayout];
     _thumbImageView.delegate = self;
+    [_thumbImageView registerClass:[ReportMoodThumbImageSection class] forCellWithReuseIdentifier:ThumbImageCellIdentifier];
     _thumbImageView.dataSource = self;
-#if 0
-    NSInteger count = [_imgChoseArray count];
-    if(count < MaxImageCount)
-    {
-        _addPictureButton = [[UIButton alloc] init];
-        [_addPictureButton addTarget:self action:@selector(AddPictures:) forControlEvents:UIControlEventTouchUpInside];
-        [_reportView addSubview:_addPictureButton];
-    }
-    for(int i = 0; i < count; i++)
-    {
-        UIImageView *thumbImageView = [[UIImageView alloc] init];
-        thumbImageView.image = [UIImage imageWithCGImage:(__bridge CGImageRef _Nonnull)((PHAsset *)[_imgChoseArray objectAtIndex:i])];
-        [_reportView addSubview:thumbImageView];
-    }
-#endif
+    _thumbImageView.backgroundColor = [UIColor whiteColor];
+    [_reportView addSubview:_thumbImageView];
     
 #if DEBUG
     [self WireFrameModel];
 #endif
+    self.tableView.tableHeaderView = _reportView ;
     [self InitConstraint];
-    self.tableView.tableHeaderView = _reportView;
 }
 
 #if DEBUG
@@ -99,6 +89,9 @@
     
     _addPictureButton.layer.borderColor = [UIColor greenColor].CGColor;
     _addPictureButton.layer.borderWidth = 2;
+    
+    _thumbImageView.layer.borderColor = [UIColor blueColor].CGColor;
+    _thumbImageView.layer.borderWidth = 2;
 }
 
 #endif
@@ -107,34 +100,90 @@
 -(void) InitConstraint
 {
     [_reportMoodTextView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.mas_equalTo(_reportView).offset(Padding);
+        make.top.mas_equalTo(_reportView.mas_top).offset(Padding);
+        make.left.mas_equalTo(_reportView.mas_left).offset(Padding);
         make.right.mas_equalTo(_reportView.mas_right).offset(-Padding);
-        make.height.mas_equalTo(MoodTextViewHeigh);
-    }];
-    [_placeHolderLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.mas_equalTo(_thumbImageView.mas_top).offset(-Padding);
         
+        CGFloat width = _reportView.frame.size.width - 2*Padding;
+        make.width.mas_equalTo(width);
+        make.height.mas_equalTo(DefaultWH);
     }];
-    //添加或更新 addPictureBtn 和 thumbImageViewArray 约束
-    NSInteger count = [_imgChoseArray count];
-    if (count < MaxImageCount)
-    {
-        
-    }
-    [self AddThumbImageViewConstraint];
-}
-
--(void) AddThumbImageViewConstraint
-{
     
+    [_placeHolderLabel mas_makeConstraints:^(MASConstraintMaker *make)
+    {
+        make.top.mas_equalTo(_reportView.mas_top).offset(Padding);
+        make.left.mas_equalTo(_reportView.mas_left).offset(Padding);
+        make.right.mas_equalTo(_reportView.mas_right).offset(-Padding);
+        make.bottom.mas_equalTo(_reportMoodTextView.mas_top).offset(-(DefaultWH-PlaceHoliderHigh));
+        
+        make.width.mas_equalTo(_reportMoodTextView.mas_width);
+        make.height.mas_equalTo(PlaceHoliderHigh);
+    }];
+    
+    [_thumbImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(_reportMoodTextView.mas_bottom).offset(DefaultZero);
+        make.left.mas_equalTo(_reportView.mas_left).offset(Padding);
+        make.right.mas_equalTo(_reportView.mas_right).offset(-Padding);
+        make.bottom.mas_equalTo(_reportView.mas_bottom).offset(-Padding);
+        
+        make.width.mas_equalTo(DefaultWH);
+        make.height.mas_equalTo(DefaultWH);
+    }];
+    
+    [_reportView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.right.mas_equalTo(self.tableView).offset(DefaultZero);
+        make.bottom.mas_equalTo(self.tableView.tableHeaderView.mas_bottom).offset(DefaultZero);
+        make.width.mas_equalTo(self.tableView.mas_width);
+        CGFloat totalHeigh = DefaultNumber;
+        totalHeigh += DefaultWH;
+        NSInteger number = [_thumbImageView numberOfSections]/4;
+        number = number ? number:DefaultNumber;
+        totalHeigh += number * ThumbImageCellHeigh;
+        totalHeigh += DefaultInterval;
+        make.height.mas_equalTo(totalHeigh);
+    }];
 }
 
--(NSMutableArray *) imgChoseArray
+-(void) UpdateConstraint
 {
-    if(!_imgChoseArray)
+    [_thumbImageView mas_updateConstraints:^(MASConstraintMaker *make)
     {
-        _imgChoseArray = [NSMutableArray array];
+        NSInteger number = [_imgChoseArray count];
+ 
+        NSInteger heigh = ([self CollectionViewCellWithRowNumber] * ThumbImageCellHeigh) + (number * DefaultEdgeInsets);
+        make.height.mas_equalTo(heigh);
+    }];
+    
+    [_reportView mas_updateConstraints:^(MASConstraintMaker *make) {
+        CGFloat totalHeigh = DefaultNumber;
+        totalHeigh += DefaultWH;
+        totalHeigh += ([self CollectionViewCellWithRowNumber] * ThumbImageCellHeigh);
+        totalHeigh += DefaultInterval;
+        make.height.mas_equalTo(totalHeigh);
+    }];
+}
+
+-(NSInteger) CollectionViewCellWithRowNumber
+{
+    NSInteger number = [_imgChoseArray count];
+    if (number < MaxImageCount)
+    {
+        number += DefaultNumber;
     }
-    return _imgChoseArray;
+    NSInteger remainder = number%ThumbImageCellDividend;
+    NSInteger rowNumber = number/ThumbImageCellDividend;
+    return (rowNumber ? rowNumber :DefaultNumber) + (remainder ? DefaultNumber : DefaultZero);
+}
+
+-(JFImagePickerController *) imgPickerController
+{
+    if (!_imgPickerController)
+    {
+        _imgPickerController = [[JFImagePickerController alloc] initWithRootViewController:self.navigationController];
+        _imgPickerController.pickerDelegate = self;
+    }
+    return _imgPickerController;
 }
 
 -(void) KeyBoardDisMiss:(UITapGestureRecognizer *)obj
@@ -142,24 +191,8 @@
     [self.reportMoodTextView resignFirstResponder];
 }
 
--(void)tapImageView:(UITapGestureRecognizer *)tap
-{
-#if 0
-    self.navigationController.navigationBarHidden = YES;
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-    ShowImageViewController *vc = [storyboard instantiateViewControllerWithIdentifier:@"ShowImage"];
-    vc.clickTag = tap.view.tag;
-    vc.imageViews = self.imagePickerArray;
-    [self.navigationController pushViewController:vc animated:YES];
-#endif
-}
-
--(void) AddPictures:(id)sender
-{
-
-}
-
 #pragma mark UICollectionView DataSource or Delegate 
+
 
 -(NSInteger) collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
@@ -168,27 +201,61 @@
     {
         return DefaultNumber;
     }
-    return count + DefaultNumber;
+    else if (count < MaxImageCount)
+    {
+        return count + DefaultNumber;
+    }
+    else
+    {
+        return  count;
+    }
 }
 
 -(NSInteger) numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return DefaultNumber;
+    return DefaultNumber;;
 }
 
 -(UICollectionViewCell *) collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return nil;
+    ReportMoodThumbImageSection *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ThumbImageCellIdentifier forIndexPath:indexPath];;
+    NSInteger number = [_imgChoseArray count];
+    if (number == MinImageCount)
+    {
+        [cell AddOpenImagePickerControllerAction:^(UIButton *btn) {
+            [btn addTarget:self action:@selector(OpenImagePickerController) forControlEvents:UIControlEventTouchUpInside];
+        }];
+    }else
+    {
+        if (indexPath.row < number)
+        {
+            UIImage *image = [_imgChoseArray objectAtIndex:indexPath.row];
+            UIImageView *thumbImgView = [[UIImageView alloc] initWithImage:image];
+            cell.thumbImge = thumbImgView;
+        }else if(indexPath.row != MaxImageCount)
+        {
+            [cell AddOpenImagePickerControllerAction:^(UIButton *btn) {
+                [btn addTarget:self action:@selector(OpenImagePickerController) forControlEvents:UIControlEventTouchUpInside];
+            }];
+        }
+    }
+    
+    return cell;
+}
+
+-(void) OpenImagePickerController
+{
+    [self presentViewController:self.imgPickerController animated:YES completion:nil];
 }
 
 -(CGSize) collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake(0,0);
+    return CGSizeMake(DefaultThumbImageHW,DefaultThumbImageHW);
 }
 
 -(UIEdgeInsets) collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(0, 0, 0, 0);
+    return UIEdgeInsetsMake(DefaultEdgeInsets, DefaultEdgeInsets, DefaultEdgeInsets, DefaultEdgeInsets);
 }
 
 -(void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(nonnull NSIndexPath *)indexPath
@@ -196,6 +263,43 @@
     
 }
 
+#pragma mark JFImagePickerController Delegate
 
+-(void) imagePickerDidFinished:(JFImagePickerController *)picker
+{
+    NSArray *photoImageArray = [picker imagesWithType:MinImageCount];
+    if ([_imgChoseArray count] != MinImageCount)
+    {
+       [_imgChoseArray removeAllObjects];
+        _imgChoseArray = nil;
+        [_thumbImageView reloadData];
+    }
+     _imgChoseArray = (NSMutableArray *)photoImageArray;
+    
+    [picker dismissViewControllerAnimated:YES completion:^
+    {
+        [_thumbImageView reloadData];
+        [self UpdateConstraint];
+    }];
+}
+
+-(void) imagePickerDidCancel:(JFImagePickerController *)picker
+{
+    [picker dismissViewControllerAnimated:YES completion:nil];
+
+}
+
+-(void) textViewDidBeginEditing:(UITextView *)textView
+{
+    _placeHolderLabel.hidden = YES;
+}
+
+-(void) textViewDidEndEditing:(UITextView *)textView
+{
+    if ([_reportMoodTextView.text length] == 0)
+    {
+        _placeHolderLabel.hidden = NO;
+    }
+}
 
 @end
